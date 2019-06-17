@@ -1,0 +1,22 @@
+{
+  "name": "cells-server",
+  "version": "0.0.1",
+  "description": "Socket server for Cells",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobinvdA/CellsServer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RobinvdA/CellsServer/issues"
+  },
+  "homepage": "https://github.com/RobinvdA/CellsServer#readme",
+  "dependencies": {
+    "socket.io": "^2.2.0"
+  }
+}
