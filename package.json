@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/RobinvdA/CellsServer#readme",
   "dependencies": {
+    "microtime": "^3.0.0",
     "socket.io": "^2.2.0"
   }
 }
