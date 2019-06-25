@@ -21,19 +21,35 @@ http.listen(port, hostname, () => {
 io.on('connection', function(socket){
     console.info('User connected');
 
-    socket.on('disconnect', function(){
-        console.log('User disconnected');
+    on(socket, 'disconnect', (data) => {
+
     });
 
-    socket.on('join', function(){
-        console.log('User joined');
-
+    on(socket, 'join', (data) => {
         let player = state.addPlayer(socket.id);
 
-        if (! player) return socket.emit('game-full');
+        if (! player) return emit(socket, 'game-full');
 
-        socket.emit('player', player);
+        emit(socket, 'player', player);
 
-        socket.emit('grid', state.grid);
+        emit(socket, 'grid', state.grid);
+
+        setTimeout(() => {
+            emit(socket, 'game-start');
+        }, 2000);
     });
 });
+
+function emit(socket, message, data = null) {
+    console.log('outgoing:', message);
+
+    return socket.emit(message, data);
+}
+
+function on(socket, message, callback) {
+    socket.on(message, (data) => {
+        console.log('incoming:', message);
+
+        callback(data);
+    });
+}

@@ -32,8 +32,6 @@ class Loop
         this._previousTime = now;
 
         this._tick++;
-
-        console.log(this._tick);
     }
 
     _update(delta) {
