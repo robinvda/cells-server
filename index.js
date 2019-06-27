@@ -18,12 +18,40 @@ http.listen(port, hostname, () => {
     });
 });
 
+let lobby = {
+    players: [],
+
+    games: []
+};
+
+let users = {};
+
 io.on('connection', function(socket){
     console.info('User connected');
 
-    on(socket, 'disconnect', (data) => {
+    users[socket.id] = {
+        name: null
+    };
 
+    on(socket, 'disconnect', (data) => {
+        console.log('User disconnected');
+
+        delete users[socket.id];
     });
+
+    on(socket, 'save-name', (name) => {
+        users[socket.id].name = name;
+
+        emit(socket, 'name-saved', name);
+
+        lobby.players.push(users[socket.id]);
+    });
+
+    on(socket, 'joined-lobby', () => {
+        broadcast('lobby-state', lobby);
+    });
+
+
 
     on(socket, 'join', (data) => {
         let player = state.addPlayer(socket.id);
@@ -41,14 +69,20 @@ io.on('connection', function(socket){
 });
 
 function emit(socket, message, data = null) {
-    console.log('outgoing:', message);
+    console.log('sent:', message);
 
     return socket.emit(message, data);
 }
 
+function broadcast(message, data = null) {
+    console.log('broadcasted:', message);
+
+    return io.emit(message, data);
+}
+
 function on(socket, message, callback) {
     socket.on(message, (data) => {
-        console.log('incoming:', message);
+        console.log('received:', message);
 
         callback(data);
     });
