@@ -1,5 +1,6 @@
 const http = require('http').createServer();
 const io = require('socket.io')(http);
+const _ = require('lodash');
 
 const State = require('./state.js');
 const state = new State();
@@ -30,6 +31,7 @@ io.on('connection', function(socket){
     console.info('User connected');
 
     users[socket.id] = {
+        id: socket.id,
         name: null
     };
 
@@ -47,8 +49,46 @@ io.on('connection', function(socket){
         lobby.players.push(users[socket.id]);
     });
 
-    on(socket, 'joined-lobby', () => {
+    on(socket, 'join-lobby', () => {
         broadcast('lobby-state', lobby);
+    });
+
+    on(socket, 'create-game', (data) => {
+        let game = {
+            id: Date.now(),
+            name: data.name,
+            players: [
+                users[socket.id]
+            ],
+            slots: 4,
+            state: 'Awaiting players',
+            host: socket.id
+        };
+
+        lobby.games.push(game);
+
+        _.remove(lobby.players, (player) => { return player.id == socket.id; });
+
+        broadcast('lobby-state', lobby);
+
+        socket.join(game.id);
+
+        emit(socket, 'joined-game', game);
+    });
+
+    on(socket, 'join-game', (data) => {
+        let game = _.find(lobby.games, ['id', data.id]);
+        game.players.push(users[socket.id]);
+
+        _.remove(lobby.players, (player) => { return player.id == socket.id; });
+
+        broadcast('lobby-state', lobby);
+
+        socket.join(game.id);
+
+        emit(socket, 'joined-game', game);
+
+        broadcast('game-players', game.players, game.id);
     });
 
 
@@ -74,8 +114,10 @@ function emit(socket, message, data = null) {
     return socket.emit(message, data);
 }
 
-function broadcast(message, data = null) {
+function broadcast(message, data = null, room = null) {
     console.log('broadcasted:', message);
+
+    if (room) return io.to(room).emit(message, data);
 
     return io.emit(message, data);
 }
