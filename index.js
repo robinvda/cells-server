@@ -8,16 +8,10 @@ const state = new State();
 const Loop = require('./loop.js');
 const loop = new Loop(State);
 
+const Game = require('./game/game.js');
+
 const hostname = '0.0.0.0';
 const port = 3000;
-
-http.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-
-    loop.run(() => {
-
-    });
-});
 
 let lobby = {
     players: [],
@@ -26,6 +20,20 @@ let lobby = {
 };
 
 let users = {};
+
+http.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+
+    loop.run(() => {
+
+        _.each(lobby.games, (game) => {
+            game.checkState(() => {
+                broadcast('game-state', game, game.id);
+            });
+        });
+
+    });
+});
 
 io.on('connection', function(socket){
     console.info('User connected');
@@ -54,16 +62,14 @@ io.on('connection', function(socket){
     });
 
     on(socket, 'create-game', (data) => {
-        let game = {
-            id: Date.now(),
-            name: data.name,
-            players: [
-                users[socket.id]
-            ],
-            slots: 4,
-            state: 'Awaiting players',
-            host: socket.id
-        };
+        let game = new Game(
+            Date.now(),
+            data.name,
+            socket.id,
+            1
+        );
+
+        game.players.push(users[socket.id]);
 
         lobby.games.push(game);
 

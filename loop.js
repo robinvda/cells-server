@@ -19,7 +19,7 @@ class Loop
     }
 
     tick(callback = () => {}) {
-        setTimeout(() => { this.tick(); }, this._tickLength);
+        setTimeout(() => { this.tick(callback); }, this._tickLength);
 
         let now = microtime.now();
 
