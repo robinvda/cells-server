@@ -58,7 +58,7 @@ class Server {
             user.on('join-lobby-request', () => {
                 user.join('lobby');
 
-                if (! this.lobby.users.has(user)) {
+                if (! this.lobby.users.has(user.id)) {
                     this.lobby.users.add(user);
                 }
 
@@ -82,7 +82,7 @@ class Server {
                     return user.emit('join-game-failed');
                 }
 
-                if (! game.players.has(user)) {
+                if (! game.players.has(user.id)) {
                     game.createPlayer(user);
                 }
 
@@ -93,6 +93,36 @@ class Server {
                 this.io.to(user.room).emit('user-joined', user.properties());
 
                 user.emit('joined-game', game.properties());
+            });
+
+            user.on('leave-game-request', (id) => {
+                let game = this.lobby.games.find(id);
+
+                if (! game) {
+                    return user.emit('leave-game-failed');
+                }
+
+                if (game.players.has(user.id)) {
+                    game.deletePlayer(user.id);
+                }
+
+                this.io.to(game.id).emit('user-left', user.properties());
+
+                user.emit('left-game', game.properties());
+            });
+
+            user.on('start-game-request', (id) => {
+                let game = this.lobby.games.find(id);
+
+                if (! game) {
+                    return user.emit('start-game-failed');
+                }
+
+                if (! game.isHost(user)) {
+                    return user.emit('start-game-failed');
+                }
+
+                // todo start game
             });
         });
     }

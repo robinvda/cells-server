@@ -47,8 +47,12 @@ class Game {
         let player = this.players.remove(id);
 
         if (! player) return null;
-console.log(player);
+
         this.availableColors.push(player.color);
+    }
+
+    isHost(user) {
+        return this.user.id == user.id;
     }
 
 }
