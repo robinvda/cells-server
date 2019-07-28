@@ -1,14 +1,17 @@
-const _ = require('lodash');
+const Room = require('./../Room');
+const Loop = require('./Game/Loop');
+const State = require('./Game/State');
 
 const Players = require('./Players/Players');
 const Player = require('./Players/Player');
 const Color = require('./Players/Color');
 
-class Game {
+class Game extends Room {
 
-    constructor(name, user) {
+    constructor(io, name, user) {
+        super(io);
 
-        this.id = Date.now();
+        this.id = this.room;
         this.name = name;
         this.user = user;
         this.slots = 4;
@@ -22,6 +25,10 @@ class Game {
             new Color('Yellow', 'yellow')
         ];
 
+        this.loop = new Loop();
+
+        this.state = new State();
+
     }
 
     properties() {
@@ -33,6 +40,28 @@ class Game {
             players: this.players.properties(),
             availableColors: this.availableColors
         }
+    }
+
+    start() {
+        this.countdown(() => {
+            this.loop.run((delta) => {
+
+
+
+                this.emit('game-state', this.state.properties());
+
+            });
+        }, 5);
+    }
+
+    countdown(callback = () => {}, count) {
+        setTimeout(() => {
+            if (count == 0) return callback();
+
+            this.emit('game-countdown', count);
+
+            this.countdown(callback, --count);
+        }, 1000);
     }
 
     createPlayer(user) {

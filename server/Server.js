@@ -40,9 +40,7 @@ class Server {
             user.on('disconnect', () => {
                 console.log('Disconnected');
 
-                if (user.room) {
-                    this.io.to(user.room).emit('user-left', user.properties());
-                }
+                user.broadcast('user-left', user.properties());
 
                 this.lobby.removeUser(user);
 
@@ -62,17 +60,19 @@ class Server {
                     this.lobby.users.add(user);
                 }
 
-                this.io.to(user.room).emit('user-joined', user.properties());
+                user.broadcast('user-joined', user.properties());
 
                 user.emit('joined-lobby', this.lobby.properties());
             });
 
             user.on('create-game-request', (data) => {
-                let game = new Game(data.name, user);
+                let game = new Game(this.io, data.name, user);
 
                 this.lobby.games.add(game);
 
-                user.emit('game-created', game.properties());
+                user.emit('created-game', game.properties());
+
+                user.broadcast('game-created', game.properties());
             });
 
             user.on('join-game-request', (id) => {
@@ -86,11 +86,11 @@ class Server {
                     game.createPlayer(user);
                 }
 
-                this.io.to(user.room).emit('user-left', user.properties());
+                user.broadcast('user-left', user.properties());
 
                 user.join(game.id);
 
-                this.io.to(user.room).emit('user-joined', user.properties());
+                user.broadcast('user-joined', user.properties());
 
                 user.emit('joined-game', game.properties());
             });
@@ -106,7 +106,7 @@ class Server {
                     game.deletePlayer(user.id);
                 }
 
-                this.io.to(game.id).emit('user-left', user.properties());
+                user.broadcast('user-left', user.properties());
 
                 user.emit('left-game', game.properties());
             });
@@ -122,7 +122,9 @@ class Server {
                     return user.emit('start-game-failed');
                 }
 
-                // todo start game
+                game.start();
+
+
             });
         });
     }

@@ -1,14 +1,13 @@
-class User {
+const Socket = require('./../Socket');
+
+class User extends Socket {
 
     constructor(socket) {
+        super(socket);
 
-        this.socket = socket;
-
-        this.id = this.socket.id;
+        this.id = this._socket.id;
 
         this.name = null;
-
-        this.room = null;
 
     }
 
@@ -18,36 +17,6 @@ class User {
             name: this.name,
             room: this.room
         }
-    }
-
-    on(message, callback = () => {}) {
-        this.socket.on(message, (data) => {
-            console.log('Received:', message, data);
-
-            callback(data);
-        });
-    }
-
-    emit(message, data = null) {
-        console.log('Sent:', message, data);
-
-        this.socket.emit(message, data);
-    }
-
-    join(id) {
-        if (this.room) {
-            this.leave(this.room);
-        }
-
-        this.socket.join(id);
-
-        this.room = id;
-    }
-
-    leave(id) {
-        this.socket.leave(id);
-
-        this.room = null;
     }
 
 }
