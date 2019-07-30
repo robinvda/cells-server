@@ -1,10 +1,8 @@
-const _ = require('lodash');
+import Players from './Players/Players';
+import Player from './Players/Player';
+import Color from './Players/Color';
 
-const Players = require('./Players/Players');
-const Player = require('./Players/Player');
-const Color = require('./Players/Color');
-
-class Game {
+export default class Game {
 
     constructor(name, user) {
 
@@ -47,10 +45,8 @@ class Game {
         let player = this.players.remove(id);
 
         if (! player) return null;
-console.log(player);
+
         this.availableColors.push(player.color);
     }
 
 }
-
-module.exports = Game;

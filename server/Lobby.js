@@ -1,9 +1,7 @@
-const _ = require('lodash');
+import Users from './Users/Users';
+import Games from './Games/Games';
 
-const Users = require('./Users/Users');
-const Games = require('./Games/Games');
-
-class Lobby {
+export default class Lobby {
 
     constructor() {
 
@@ -27,5 +25,3 @@ class Lobby {
     }
 
 }
-
-module.exports = Lobby;

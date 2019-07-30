@@ -1,4 +1,4 @@
-class Color {
+export default class Color {
 
     constructor(name, code) {
 
@@ -14,5 +14,3 @@ class Color {
         }
     }
 }
-
-module.exports = Color;

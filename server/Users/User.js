@@ -1,4 +1,4 @@
-class User {
+export default class User {
 
     constructor(socket) {
 
@@ -51,5 +51,3 @@ class User {
     }
 
 }
-
-module.exports = User;

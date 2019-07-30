@@ -1,6 +1,6 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
-class Games {
+export default class Games {
 
     constructor() {
         this.items = [];
@@ -45,5 +45,3 @@ class Games {
     }
 
 }
-
-module.exports = Games;

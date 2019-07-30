@@ -1,9 +1,9 @@
-const User = require('./Users/User');
-const Users = require('./Users/Users');
-const Lobby = require('./Lobby');
-const Game = require('./Games/Game');
+import User from './Users/User';
+import Users from './Users/Users';
+import Lobby from './Lobby';
+import Game from './Games/Game';
 
-class Server {
+export default class Server {
 
     constructor(address, port) {
 
@@ -98,5 +98,3 @@ class Server {
     }
 
 }
-
-module.exports = Server;
