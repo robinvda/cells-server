@@ -1,12 +1,17 @@
+import Room from './../Room';
+import Loop from './Game/Loop';
+import State from './Game/State';
+
 import Players from './Players/Players';
 import Player from './Players/Player';
 import Color from './Players/Color';
 
-export default class Game {
+export default class Game extends Room {
 
-    constructor(name, user) {
+    constructor(io, name, user) {
+        super(io);
 
-        this.id = Date.now();
+        this.id = this.room;
         this.name = name;
         this.user = user;
         this.slots = 4;
@@ -20,6 +25,10 @@ export default class Game {
             new Color('Yellow', 'yellow')
         ];
 
+        this.loop = new Loop();
+
+        this.state = new State();
+
     }
 
     properties() {
@@ -31,6 +40,28 @@ export default class Game {
             players: this.players.properties(),
             availableColors: this.availableColors
         }
+    }
+
+    start() {
+        this.countdown(() => {
+            this.loop.run((delta) => {
+
+
+
+                this.emit('game-state', this.state.properties());
+
+            });
+        }, 5);
+    }
+
+    countdown(callback = () => {}, count) {
+        setTimeout(() => {
+            if (count == 0) return callback();
+
+            this.emit('game-countdown', count);
+
+            this.countdown(callback, --count);
+        }, 1000);
     }
 
     createPlayer(user) {
@@ -47,6 +78,10 @@ export default class Game {
         if (! player) return null;
 
         this.availableColors.push(player.color);
+    }
+
+    isHost(user) {
+        return this.user.id == user.id;
     }
 
 }

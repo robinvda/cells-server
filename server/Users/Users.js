@@ -22,8 +22,8 @@ export default class Users {
         return this.items.splice(index, 1)[0];
     }
 
-    has(user) {
-        return this.findIndex(user.id) >= 0;
+    has(id) {
+        return this.findIndex(id) >= 0;
     }
 
     findIndex(id) {

@@ -40,9 +40,7 @@ export default class Server {
             user.on('disconnect', () => {
                 console.log('Disconnected');
 
-                if (user.room) {
-                    this.io.to(user.room).emit('user-left', user.properties());
-                }
+                user.broadcast('user-left', user.properties());
 
                 this.lobby.removeUser(user);
 
@@ -58,21 +56,23 @@ export default class Server {
             user.on('join-lobby-request', () => {
                 user.join('lobby');
 
-                if (! this.lobby.users.has(user)) {
+                if (! this.lobby.users.has(user.id)) {
                     this.lobby.users.add(user);
                 }
 
-                this.io.to(user.room).emit('user-joined', user.properties());
+                user.broadcast('user-joined', user.properties());
 
                 user.emit('joined-lobby', this.lobby.properties());
             });
 
             user.on('create-game-request', (data) => {
-                let game = new Game(data.name, user);
+                let game = new Game(this.io, data.name, user);
 
                 this.lobby.games.add(game);
 
-                user.emit('game-created', game.properties());
+                user.emit('created-game', game.properties());
+
+                user.broadcast('game-created', game.properties());
             });
 
             user.on('join-game-request', (id) => {
@@ -82,17 +82,49 @@ export default class Server {
                     return user.emit('join-game-failed');
                 }
 
-                if (! game.players.has(user)) {
+                if (! game.players.has(user.id)) {
                     game.createPlayer(user);
                 }
 
-                this.io.to(user.room).emit('user-left', user.properties());
+                user.broadcast('user-left', user.properties());
 
                 user.join(game.id);
 
-                this.io.to(user.room).emit('user-joined', user.properties());
+                user.broadcast('user-joined', user.properties());
 
                 user.emit('joined-game', game.properties());
+            });
+
+            user.on('leave-game-request', (id) => {
+                let game = this.lobby.games.find(id);
+
+                if (! game) {
+                    return user.emit('leave-game-failed');
+                }
+
+                if (game.players.has(user.id)) {
+                    game.deletePlayer(user.id);
+                }
+
+                user.broadcast('user-left', user.properties());
+
+                user.emit('left-game', game.properties());
+            });
+
+            user.on('start-game-request', (id) => {
+                let game = this.lobby.games.find(id);
+
+                if (! game) {
+                    return user.emit('start-game-failed');
+                }
+
+                if (! game.isHost(user)) {
+                    return user.emit('start-game-failed');
+                }
+
+                game.start();
+
+
             });
         });
     }
