@@ -44,7 +44,7 @@ export default class Game extends Room {
 
     start() {
         this.countdown(() => {
-            this.loop.run((delta) => {
+            this.loop.start((delta) => {
 
 
 
@@ -52,6 +52,10 @@ export default class Game extends Room {
 
             });
         }, 5);
+    }
+
+    stop() {
+        this.loop.stop();
     }
 
     countdown(callback = () => {}, count) {

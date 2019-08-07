@@ -7,18 +7,26 @@ class Loop
 
         this._tick = 0;
         this._previousTime = null;
+        this._running = null;
 
         this._state = state;
     }
 
-    run(callback = () => {}) {
+    stop() {
+        this._running = false;
+    }
+
+    start(callback = () => {}) {
         this._tick = 0;
         this._previousTime = microtime.now();
+        this._running = true;
 
         this.tick(callback);
     }
 
     tick(callback = () => {}) {
+        if (! this._running) return;
+
         setTimeout(() => { this.tick(callback); }, this._tickLength);
 
         let now = microtime.now();

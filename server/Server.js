@@ -42,6 +42,14 @@ export default class Server {
 
                 user.broadcast('user-left', user.properties());
 
+                let game = this.lobby.games.find(user.room);
+
+                if (game && game.players.items.length <= 1) {
+                    game.stop();
+
+                    this.lobby.games.remove(game.id);
+                }
+
                 this.lobby.removeUser(user);
 
                 this.users.remove(user.id);
